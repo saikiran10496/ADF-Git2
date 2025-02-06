@@ -16,10 +16,13 @@ jobs:
 
     steps:
       - name: Download Build Artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: ADF-Build.yml  # Make sure this matches the Build Pipeline file name
           name: adfexport
           path: ${{ github.workspace }}/export
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Debug - Check Downloaded Files
         run: ls -R ${{ github.workspace }}/export || echo "No files found"
