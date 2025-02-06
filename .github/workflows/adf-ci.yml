@@ -1,0 +1,98 @@
+name: ADF CI/CD Pipeline
+
+# on:
+ # push:
+   # branches:
+     # - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      PACKAGE_FOLDER: 'build'
+      ADF_ROOT_FOLDER: ''
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: 18.x
+          
+      - name: Install ADF Utilities package
+        run: npm install
+        working-directory: ${{github.workspace}}/build
+        
+      - name: Validate
+        run: |
+          npm run build validate ${{ github.workspace }}/$ADF_ROOT_FOLDER \
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }}
+        working-directory: ${{github.workspace}}/build
+
+      - name: Generate ARM Template
+        run: |
+          npm run build export ${{ github.workspace }}/$ADF_ROOT_FOLDER \
+            /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
+        working-directory: ${{github.workspace}}/build
+        
+      - name: Debug - Check Generated ARM Template
+        run: ls -R ${{github.workspace}}/build/export
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: export
+          path: ${{github.workspace}}/build/export 
+
+  release:
+    needs: build  # This ensures the release job runs after the build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: export
+          path: ${{github.workspace}}/export
+
+      - name: Debug - Check Downloaded Files
+        run: ls -R ${{github.workspace}}/export || echo "No files found"
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy to Dev Data Factory
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
+          armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
+      
+      - name: Deploy to Prod Data Factory
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: test-demo-ADF-githubactions
+          armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
+          
+      - name: Deploy to Prod Data Factory
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: prod-demo-ADF-githubactions
+          armTemplateFile: ${{github.workspace}}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{github.workspace}}/export/ARMTemplateParametersForFactory.json
