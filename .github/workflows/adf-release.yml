@@ -33,6 +33,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           audience: api://AzureADTokenExchange
           auth-type: SERVICE_PRINCIPAL
+          enable-AzPSSession: false
 
       - name: Deploy to Dev Data Factory
         uses: Azure/data-factory-deploy-action@v1.2.0
