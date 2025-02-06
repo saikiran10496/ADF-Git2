@@ -1,10 +1,8 @@
 name: ADF Release Pipeline
 
 on:
-  workflow_dispatch:
-   # workflows: ["ADF Build Pipeline"]
-   #  types:
-    #  - completed
+  release:
+    types: [published]
 
 permissions:
   id-token: write
@@ -15,12 +13,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
+      - name: Download Release Asset
+        uses: dsaltares/fetch-gh-release-asset@master
         with:
-          name: adfexport
-          path: ${{ github.workspace }}/export
+          repo: ${{ github.repository }}
+          version: latest
+          file: adfexport.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Unzip Artifact
+        run: unzip adfexport.zip -d ${{ github.workspace }}/export
+        
       - name: Debug - Check Downloaded Files
         run: ls -R ${{ github.workspace }}/export || echo "No files found"
 
