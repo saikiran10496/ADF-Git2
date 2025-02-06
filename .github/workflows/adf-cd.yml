@@ -1,0 +1,41 @@
+name: ADF Release Pipeline
+
+on:
+  workflow_run:
+    workflows: ["ADF Build Pipeline"]
+    types:
+      - completed
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: adf-export
+          path: ${{ github.workspace }}/export
+
+      - name: Debug - Check Downloaded Files
+        run: ls -R ${{ github.workspace }}/export || echo "No files found"
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy to Dev Data Factory
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
+          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
