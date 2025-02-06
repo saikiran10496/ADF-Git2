@@ -42,11 +42,16 @@ jobs:
             /subscriptions/${{ secrets.SUBSCRIPTION_ID }}/resourceGroups/${{ secrets.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ secrets.DATA_FACTORY_NAME }} "export"
         working-directory: ${{github.workspace}}/build
         
-      - name: Debug - Check Generated ARM Template
-        run: ls -R ${{github.workspace}}/build/export
+      - name: Archive Build Artifact
+        run: |
+          zip -r adfexport.zip ${{ github.workspace }}/build/export
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: adfexport
-          path: ${{github.workspace}}/build/export 
+          tag_name: adf-build-${{ github.run_number }}
+          name: "ADF Build ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          files: adfexport.zip
+          token: ${{ secrets.GITHUB_TOKEN }} 
