@@ -7,7 +7,7 @@ on:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -54,4 +54,4 @@ jobs:
           draft: false
           prerelease: false
           files: adfexport.zip
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          token: ${{ secrets.GH_PAT }} 
