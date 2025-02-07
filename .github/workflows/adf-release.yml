@@ -24,23 +24,18 @@ jobs:
       - name: Create export directory
         run: mkdir -p ${{ github.workspace }}/export
 
-      - name: Unzip Artifact
+      - name: Unzip and Move Files
         run: |
           unzip adfexport.zip
-          # Find and move files to the correct location
-          find . -name "ARMTemplateForFactory.json" -exec cp {} ${{ github.workspace }}/ARMTemplateForFactory.json \;
-          find . -name "ARMTemplateParametersForFactory.json" -exec cp {} ${{ github.workspace }}/ARMTemplateParametersForFactory.json \;
-      - name: Fix File Paths
-        run: |
-          mv ${{ github.workspace }}/export/home/runner/work/ADF-Git2/ADF-Git2/build/export/* ${{ github.workspace }}/export/
-          rm -rf ${{ github.workspace }}/export/home
+          mv home/runner/work/ADF-Git2/ADF-Git2/build/export/* ${{ github.workspace }}/export/
+          rm -rf home
           
       - name: Debug - List Files
         run: |
           echo "Current directory contents:"
           ls -la
           echo "Workspace contents:"
-          ls -la ${{ github.workspace }}
+          ls -la ${{ github.workspace }}/export
           
       - name: Azure Login
         uses: azure/login@v1
