@@ -22,11 +22,19 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Unzip Artifact
-        run: unzip adfexport.zip -d ${{ github.workspace }}/expprt
+        run: |
+          unzip adfexport.zip
+          # Find and move files to the correct location
+          find . -name "ARMTemplateForFactory.json" -exec cp {} ${{ github.workspace }}/ARMTemplateForFactory.json \;
+          find . -name "ARMTemplateParametersForFactory.json" -exec cp {} ${{ github.workspace }}/ARMTemplateParametersForFactory.json \;
 
-      - name: Debug - Check Downloaded Files
-        run: ls -R ${{ github.workspace }}/export || echo "No files found"
-
+      - name: Debug - List Files
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Workspace contents:"
+          ls -la ${{ github.workspace }}
+          
       - name: Azure Login
         uses: azure/login@v1
         with:
