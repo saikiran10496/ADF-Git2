@@ -22,7 +22,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Unzip Artifact
-        run: unzip adfexport.zip -d ${{ github.workspace }}/export
+        run: unzip adfexport.zip -d ${{ github.workspace }}
 
       - name: Debug - Check Downloaded Files
         run: ls -R ${{ github.workspace }}/export || echo "No files found"
@@ -40,5 +40,5 @@ jobs:
         with:
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
-          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
-          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
+          armTemplateFile: ${{ github.workspace }}/build/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{ github.workspace }}/build/export/ARMTemplateParametersForFactory.json
