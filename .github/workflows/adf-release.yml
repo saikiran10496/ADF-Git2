@@ -22,7 +22,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Unzip Artifact
-        run: unzip adfexport.zip -d ${{ github.workspace }}
+        run: unzip adfexport.zip -d ${{ github.workspace }}/expprt
 
       - name: Debug - Check Downloaded Files
         run: ls -R ${{ github.workspace }}/export || echo "No files found"
