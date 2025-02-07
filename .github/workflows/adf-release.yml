@@ -40,5 +40,5 @@ jobs:
         with:
           resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
           dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
-          armTemplateFile: ${{ github.workspace }}/build/export/ARMTemplateForFactory.json
-          armTemplateParametersFile: ${{ github.workspace }}/build/export/ARMTemplateParametersForFactory.json
+          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
