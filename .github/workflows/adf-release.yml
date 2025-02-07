@@ -11,15 +11,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    steps:
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
-          
+    steps:        
       - name: Download Release Asset
         uses: dsaltares/fetch-gh-release-asset@master
         with:
@@ -34,7 +26,14 @@ jobs:
       - name: Debug - Check Downloaded Files
         run: ls -R ${{ github.workspace }}/export || echo "No files found"
 
-
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+          
       - name: Deploy to Dev Data Factory
         uses: Azure/data-factory-deploy-action@v1.2.0
         with:
