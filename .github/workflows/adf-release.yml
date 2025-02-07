@@ -21,13 +21,20 @@ jobs:
           file: adfexport.zip
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create export directory
+        run: mkdir -p ${{ github.workspace }}/export
+
       - name: Unzip Artifact
         run: |
           unzip adfexport.zip
           # Find and move files to the correct location
           find . -name "ARMTemplateForFactory.json" -exec cp {} ${{ github.workspace }}/ARMTemplateForFactory.json \;
           find . -name "ARMTemplateParametersForFactory.json" -exec cp {} ${{ github.workspace }}/ARMTemplateParametersForFactory.json \;
-
+      - name: Fix File Paths
+        run: |
+          mv ${{ github.workspace }}/export/home/runner/work/ADF-Git2/ADF-Git2/build/export/* ${{ github.workspace }}/export/
+          rm -rf ${{ github.workspace }}/export/home
+          
       - name: Debug - List Files
         run: |
           echo "Current directory contents:"
