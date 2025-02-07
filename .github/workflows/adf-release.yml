@@ -5,6 +5,7 @@ on:
     types: [published]
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -31,8 +32,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          auth-type: SERVICE_PRINCIPAL
-          enable-AzPSSession: false
+          enable-AzPSSession: true
 
       - name: Deploy to Dev Data Factory
         uses: Azure/data-factory-deploy-action@v1.2.0
