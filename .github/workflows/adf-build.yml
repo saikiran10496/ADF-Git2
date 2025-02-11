@@ -45,7 +45,7 @@ jobs:
         
       - name: Archive Build Artifact
         run: |
-         TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
           echo "ARTIFACT_NAME=adfexport-${TIMESTAMP}.zip" >> $GITHUB_ENV
           zip -r ${{ env.ARTIFACT_NAME }} ${{ github.workspace }}/build/export
 
