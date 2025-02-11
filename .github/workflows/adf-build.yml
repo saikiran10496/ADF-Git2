@@ -48,14 +48,24 @@ jobs:
           TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
           ARTIFACT_NAME="adfexport-${TIMESTAMP}.zip"
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
-          
-          # Ensure directory exists and contains files before zipping
-          if [ -d "${GITHUB_WORKSPACE}/build/export" ] && [ "$(ls -A ${GITHUB_WORKSPACE}/build/export)" ]; then
-            zip -r "${GITHUB_WORKSPACE}/${ARTIFACT_NAME}" "${GITHUB_WORKSPACE}/build/export"
-          else
-            echo "Error: No files found in build/export to zip!"
-            exit 1
-          fi
+          zip -r "${GITHUB_WORKSPACE}/${ARTIFACT_NAME}" "${GITHUB_WORKSPACE}/build/export"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ github.workspace }}/${{ env.ARTIFACT_NAME }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: adf-build-${{ github.run_number }}
+          name: "ADF Build ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          files: ${{ github.workspace }}/${{ env.ARTIFACT_NAME }}
+          token: ${{ secrets.GH_PAT }}
+
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
