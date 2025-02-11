@@ -13,27 +13,30 @@ jobs:
     environment: production
     runs-on: ubuntu-latest     
     steps:  
-      - name: Get Latest Release Artifact Name
-        run: echo "LATEST_ARTIFACT=$(gh release view --json assets --jq '.assets[].name' | grep 'adfexport-')" >> $GITHUB_ENV
+      - name: Get Latest Artifact Name
+        run: |
+          ARTIFACT_NAME=$(gh release view --json assets --jq '.assets[].name' | grep 'adfexport-' | tail -n 1)
+          echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
       - name: Download Release Asset
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           repo: ${{ github.repository }}
           version: latest
-          file: ${{ env.LATEST_ARTIFACT }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.ARTIFACT_NAME }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: Create export directory
         run: mkdir -p ${{ github.workspace }}/export
 
       - name: Unzip and Move Files
         run: |
-          unzip ${{ env.LATEST_ARTIFACT }}
+          unzip ${{ env.ARTIFACT_NAME }}
           mv home/runner/work/ADF-Git2/ADF-Git2/build/export/* ${{ github.workspace }}/export/
           rm -rf home
+
           
       - name: Debug - List Files
         run: |
