@@ -13,9 +13,18 @@ jobs:
     environment: production
     runs-on: ubuntu-latest     
     steps:  
+      - name: Authenticate GitHub CLI
+        run: gh auth status || gh auth login --with-token <<< "${{ secrets.GH_PAT }}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
       - name: Get Latest Artifact Name
         run: |
-          ARTIFACT_NAME=$(gh release view --json assets --jq '.assets[].name' | grep 'adfexport-' | tail -n 1)
+          ARTIFACT_NAME=$(gh release view --repo "${{ github.repository }}" --json assets --jq '.assets[].name' | grep 'adfexport-' | tail -n 1)
+          if [ -z "$ARTIFACT_NAME" ]; then
+            echo "Error: No artifact found with name pattern 'adfexport-*'." >&2
+            exit 1
+          fi
           echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -27,6 +36,7 @@ jobs:
           version: latest
           file: ${{ env.ARTIFACT_NAME }}
           token: ${{ secrets.GH_PAT }}
+
 
       - name: Create export directory
         run: mkdir -p ${{ github.workspace }}/export
