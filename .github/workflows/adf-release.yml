@@ -70,3 +70,4 @@ jobs:
           dataFactoryName: ${{ secrets.DATA_FACTORY_NAME }}
           armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
           armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
+          skipAzModuleInstallation: true
