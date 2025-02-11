@@ -16,6 +16,7 @@ jobs:
     env:
       PACKAGE_FOLDER: 'build'
       ADF_ROOT_FOLDER: ''
+      TIMESTAMP: ${{ github.run_number }}-$(date +'%Y%m%d-%H%M%S')
     
     steps:
       - name: Checkout Repository
@@ -44,7 +45,9 @@ jobs:
         
       - name: Archive Build Artifact
         run: |
-          zip -r adfexport.zip ${{ github.workspace }}/build/export
+         TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          echo "ARTIFACT_NAME=adfexport-${TIMESTAMP}.zip" >> $GITHUB_ENV
+          zip -r ${{ env.ARTIFACT_NAME }} ${{ github.workspace }}/build/export
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -53,5 +56,5 @@ jobs:
           name: "ADF Build ${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: adfexport.zip
+          files: ${{ env.ARTIFACT_NAME }}
           token: ${{ secrets.GH_PAT }} 
