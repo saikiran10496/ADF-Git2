@@ -77,3 +77,12 @@ jobs:
           armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
           armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
           skipAzModuleInstallation: true
+
+      - name: Deploy to Prod Data Factory
+        uses: Azure/data-factory-deploy-action@v1.2.0
+        with:
+          resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
+          dataFactoryName: prod-github-actions1
+          armTemplateFile: ${{ github.workspace }}/export/ARMTemplateForFactory.json
+          armTemplateParametersFile: ${{ github.workspace }}/export/ARMTemplateParametersForFactory.json
+          skipAzModuleInstallation: true
